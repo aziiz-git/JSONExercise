@@ -33,10 +33,10 @@ public class JSONExercise {
 		courseObject1.put("course", course1);
 		
 		JSONArray courses = new JSONArray();
-		courses.add(courseObject1);  // Storing Class Objects
+		courses.add(courseObject1);  // Storing Class Objects. Not 'put', but 'add'first.
 		
 		// Add the Array to the root object
-		root.put("courses", courses);
+		root.put("courses", courses);  // Then put the array into root
 		
 		System.out.println(root.toJSONString());		
 		

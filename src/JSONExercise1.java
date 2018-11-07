@@ -29,7 +29,7 @@ public class JSONExercise1 {
 		while (true) {
 
 			// Get the Course Name
-			System.out.print("Enter Course Name: ");
+			System.out.print("Enter Course: ");
 			String course = input.nextLine(); // nextLine() reads the remainder of the current line even if it is empty.
 
 			// Check to see if User hit just Enter
@@ -41,16 +41,16 @@ public class JSONExercise1 {
 			System.out.print("Enter Grade: ");
 			int grade = input.nextInt();
 
-			if (input.hasNextLine()) { // Why? nextInt() reads an integer but does not read the escape sequence "\n".
-										// The 'Enter' that we press is still in the input buffer. If this if loop not
+			if (input.hasNextLine()) { // Why? 'nextInt()' reads an integer but does not read the escape sequence "\n".
+										// The 'Enter' that we press is still in the input buffer. If this 'if loop' not
 										// present, it'll exit 'while' loop after first data set entry
 				input.nextLine();
 			}
 
 			// Create a JSON Object and Array AND Store a Class Object in it
 			JSONObject courseObject = new JSONObject();
-			courseObject.put("grade", grade);
 			courseObject.put("course", course);
+			courseObject.put("grade", grade);
 
 			// Add the course to the Array
 			courses.add(courseObject);
@@ -60,7 +60,9 @@ public class JSONExercise1 {
 		// Add the Array to the root object
 		root.put("courses", courses);
 
-		System.out.println(root.toJSONString());
+		System.out.println("\n" + root.toJSONString());
+
+		System.out.println("\n(Above) Printing directly from the Console input.");
 
 		// Create a file and write JSON structure to it
 		File file = new File("StudentGrades.txt"); // The file will be overwritten
@@ -72,39 +74,55 @@ public class JSONExercise1 {
 		 */
 
 		try (PrintWriter writer = new PrintWriter(file)) { // Try with resources
-			writer.print(root.toJSONString());
+			writer.print(root.toJSONString()); // Write into the file
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		System.out.println("File created successfully!\n\n Hit return to display");
-		input.nextLine(); // NL
+		System.out.println("\nFile created successfully :) Hit return to display!");
+		input.nextLine(); // Read NL from User
 
 		try {
-			input = new Scanner(file);  // input was already declared and initialized before. So just reinitialized.
-			StringBuilder jsonIn = new StringBuilder();  // Why? 'String' does not allow appending. Each method you invoke on a String creates a new object and returns it. This is because String is immutable - it cannot change its internal state.
-			while (input.hasNextLine()) {  // We may have many records
-				jsonIn.append(input.nextLine());
+			input = new Scanner(file); // input was already declared and initialized before. So just reinitialized.
+			StringBuilder jsonInFile = new StringBuilder(); // Why? 'String' does not allow appending. Each method you
+															// invoke on a String creates a new object and returns it.
+															// This is because String is immutable - it cannot change
+															// its internal state.
+			while (input.hasNextLine()) { // We may have many records
+				jsonInFile.append(input.nextLine());
 			}
 
-			System.out.println(jsonIn.toString());
+			System.out.println(jsonInFile.toString());
+
+			System.out.println("\n(Above) Printed from the file. But, not parsed.\n");
+
+			JSONParser parser = new JSONParser(); // Parsing
+
+			JSONObject rootObjInFile = (JSONObject) parser.parse(jsonInFile.toString()); // This is just the 'root'
+
+			System.out.printf("Student name is %s\n", rootObjInFile.get("name").toString());
+
 			
-			JSONParser parser = new JSONParser();
+/*			 System.out.printf("Student name is %s\n",
+			 objRootInFile.get("course").toString()); // These will not work here.
+		  
+			 System.out.printf("Student name is %s\n",
+			 objRootInFile.get("grade").toString());*/
+			 
+
+			System.out.println("\n(Above) Student name, that is, only the Root node is printed.\n");
+
+			JSONArray coursesInFile = (JSONArray) rootObjInFile.get("courses"); // We need an Array for the objects
+
+			for (int i = 0; i < coursesInFile.size(); i++) {
+				JSONObject courseObjIn = (JSONObject) coursesInFile.get(i);  // Will go record by record
+				String courseIn = (String) courseObjIn.get("course");
+				long gradeIn = (long) courseObjIn.get("grade");
+				System.out.printf("Course %s :::: Grade %d\n", courseIn, gradeIn);
+			}
 			
-			JSONObject objRoot = (JSONObject) parser.parse(jsonIn.toString());
-			
-			System.out.printf("Student name is %s\n", objRoot.get("name").toString());
-			
-			JSONArray coursesIn =  (JSONArray) objRoot.get("courses");
-			
-			for(int i = 0 ; i < coursesIn.size() ; i++) {
-				JSONObject courseIn = (JSONObject) coursesIn.get(i);
-				long gradeIn = (long) courseIn.get("grade");
-				String nameIn = (String) courseIn.get("name");
-				System.out.printf("Course %s | Grade %d\n ", nameIn, gradeIn);				
-			}		
-			
+			System.out.println("\nParsed data above!");
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -112,8 +130,7 @@ public class JSONExercise1 {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
-
+		}
 	}
 
 }
